@@ -80,6 +80,14 @@ class TestDatabaseFixtures:
 
         assert not noop_transactions()
 
+    def test_multi_db_enabled(self, multi_db):
+        # TODO
+        pass
+
+    def test_multi_db_transactions_enabled(self, transactional_db, multi_db):
+        # TODO
+        pass
+
     @pytest.fixture
     def mydb(self, both_dbs):
         # This fixture must be able to access the database
@@ -162,6 +170,21 @@ class TestDatabaseMarker:
             pytest.skip('transactions required for this test')
 
         assert not noop_transactions()
+
+    @pytest.mark.django_db(multi_db=False)
+    def test_multi_db_disabled_explicit(self):
+        # TODO
+        pass
+
+    @pytest.mark.django_db(multi_db=True)
+    def test_multi_db_enabled(self):
+        # TODO
+        pass
+
+    @pytest.mark.django_db(multi_db=True, transaction=True)
+    def test_transactions_enabled_multi_db_enables(self):
+        # TODO
+        pass
 
 
 def test_unittest_interaction(django_testdir):

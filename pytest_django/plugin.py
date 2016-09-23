@@ -18,13 +18,13 @@ from .django_compat import is_django_unittest
 from .fixtures import (_django_db_setup, _live_server_helper, admin_client,
                        admin_user, client, db, django_user_model,
                        django_username_field, live_server, rf, settings,
-                       transactional_db)
+                       transactional_db, multi_db)
 from .lazy_django import django_settings_is_configured, skip_if_no_django
 
 # Silence linters for imported fixtures.
 (_django_db_setup, _live_server_helper, admin_client, admin_user, client, db,
  django_user_model, django_username_field, live_server, rf, settings,
- transactional_db)
+ transactional_db, multi_db)
 
 
 SETTINGS_MODULE_ENV = 'DJANGO_SETTINGS_MODULE'
@@ -359,14 +359,16 @@ def _django_cursor_wrapper(request):
 def _django_db_marker(request):
     """Implement the django_db marker, internal to pytest-django.
 
-    This will dynamically request the ``db`` or ``transactional_db``
-    fixtures as required by the django_db marker.
+    This will dynamically request the ``db``, ``transactional_db``
+    or ``multi_db`` fixtures as required by the django_db marker.
     """
     marker = request.keywords.get('django_db', None)
     if marker:
         validate_django_db(marker)
         if marker.transaction:
             request.getfuncargvalue('transactional_db')
+        elif marker.multi_db:
+            request.getfuncargvalue('multi_db')
         else:
             request.getfuncargvalue('db')
 
@@ -558,11 +560,12 @@ class CursorManager(object):
 def validate_django_db(marker):
     """Validate the django_db marker.
 
-    It checks the signature and creates the `transaction` attribute on
-    the marker which will have the correct value.
+    It checks the signature and creates the `transaction` and `multi_db`
+    attributes on the marker which will have the correct value.
     """
-    def apifun(transaction=False):
+    def apifun(transaction=False, multi_db=False):
         marker.transaction = transaction
+        marker.multi_db = multi_db
     apifun(*marker.args, **marker.kwargs)
 
 
