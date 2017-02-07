@@ -101,7 +101,7 @@ def _django_db_fixture_helper(transactional, request, _django_cursor_wrapper, mu
         from django.test import TestCase as django_case
 
     if django_case:
-        django_case.multi_db = True
+        django_case.multi_db = multi_db
         case = django_case(methodName='__init__')
         case._pre_setup()
         request.addfinalizer(case._post_teardown)
@@ -194,7 +194,7 @@ def transactional_db(request, _django_db_setup, _django_cursor_wrapper):
 
 
 @pytest.fixture(scope='function')
-def multi_db(request, django_db_setup, django_db_blocker):
+def multi_db(request, _django_db_setup, _django_cursor_wrapper):
     """Require a django test database
 
     This behaves like the ``db`` fixture, with the addition of marking
@@ -209,7 +209,7 @@ def multi_db(request, django_db_setup, django_db_blocker):
             or 'live_server' in request.funcargnames:
         request.getfuncargvalue('transactional_db')
     else:
-        _django_db_fixture_helper(False, request, django_db_blocker, multi_db=True) 
+        _django_db_fixture_helper(False, request, _django_cursor_wrapper, multi_db=True)
 
 
 @pytest.fixture()
