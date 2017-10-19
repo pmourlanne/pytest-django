@@ -104,7 +104,12 @@ def _django_db_fixture_helper(transactional, request, _django_cursor_wrapper, mu
         django_case.multi_db = multi_db
         case = django_case(methodName='__init__')
         case._pre_setup()
+
+        # Finalizer are called in reverse order
         request.addfinalizer(case._post_teardown)
+
+        from django.db import close_old_connections
+        request.addfinalizer(close_old_connections)
 
 
 def _handle_south():
